@@ -1,0 +1,1 @@
+A template for my HaxeFlixel games with some preconfigured settings
