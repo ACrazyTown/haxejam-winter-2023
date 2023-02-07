@@ -23,8 +23,8 @@ class Startup extends FlxState
         add(logo);
 
         init();
-
-		logo.play();
+        
+		logo.play(#if ACT_SKIP_INTRO true #end);
     }
 
     function init():Void
@@ -32,5 +32,7 @@ class Startup extends FlxState
         // Initialise stuff here
         FlxG.game.soundTray.volumeDownSound = "assets/sounds/template/traysound";
 		FlxG.game.soundTray.volumeUpSound = "assets/sounds/template/traysound";
+
+        Save.load();
     }
 }

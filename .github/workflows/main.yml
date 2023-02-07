@@ -1,0 +1,27 @@
+name: Build
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: sudo apt-get update
+    - uses: krdlab/setup-haxe@master
+      with:
+        haxe-version: 4.2.5
+    - name: Install dependencies
+      run: |
+        haxelib setup ~/haxelib
+        haxelib install hmm -quiet
+        haxelib run hmm install
+    - name: Build
+      run: haxelib run lime build html5 -final
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{secrets.GITHUB_TOKEN}}
+        publish_dir: ./export/html5/bin
+        force_orphan: true
+      if: github.ref == 'refs/heads/master'

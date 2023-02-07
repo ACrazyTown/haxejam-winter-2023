@@ -62,16 +62,24 @@ class BootLogo extends FlxSprite
         onComplete = null;
     }
 
-    public function play():Void
+    public function play(?skip:Bool = false):Void
     {
-        visible = true;
+        if (!skip)
+        {
+            visible = true;
 
-		animation.play("anim"); // actually play
+            animation.play("anim"); // actually play
 
-		setGraphicSize(Std.int(width / 2 * (FlxG.width / width)));
-        updateHitbox();
-        screenCenter();
+            setGraphicSize(Std.int(width / 2 * (FlxG.width / width)));
+            updateHitbox();
+            screenCenter();
 
-        sound.play();
+            sound.play();
+        }
+        else
+        {
+            if (onComplete != null)
+                onComplete(this);
+        }
     }
 }
