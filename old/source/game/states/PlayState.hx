@@ -105,20 +105,23 @@ class PlayState extends FlxState
 
 	function onDeath(a, b):Void
 	{
+		if (player.invincible)
+			return;
+
 		var fakePlayer:FlxSprite = player.clone();
 		fakePlayer.setPosition(player.x, player.y);
 		fakePlayer.color = FlxColor.GRAY;
 		fakePlayer.active = false;
 		add(fakePlayer);
 
-		player.x = FlxG.width / 2;
 		player.stop();
+		player.x = terrain.getMidpoint().x;
 
 		FlxG.camera.follow(null);
 
 		// Time to do something CRAZY!!! he he he ....
 		restoreModifier();
-		prevModifier = FlxG.random.int(1, 2);
+		prevModifier = 2;//FlxG.random.int(1, 2);
 		trace("Modifier pussy! " + prevModifier);
 
 		switch (prevModifier)
@@ -127,17 +130,24 @@ class PlayState extends FlxState
 				FlxG.camera.angle = 180;
 
 			case 2:
+				trace(player.x);
+
 				// Invert
 				for (section in sections)
 					section.x = -section.x;
 
-				player.inverted = true;
+				//player.inverted = true;
+				player.acceleration.x = -player.speed;
+				player.invincible = true;
+
+				trace(player.x);
 		}
 
 		FlxTween.tween(FlxG.camera, {"scroll.x": 0}, 0.25, {ease: FlxEase.quadInOut, onComplete: (t:FlxTween) -> 
 		{
 			FlxG.camera.follow(playerPos, LOCKON, 1);
 			player.moveX();
+			trace(player.x);
 		}});
 	}
 
@@ -178,37 +188,6 @@ class PlayState extends FlxState
 				var obs = new Obstacle(0, 0, FlxG.random.int(0, 3));
 				
 				var bad:Bool = false;
-				/*
-				// Previous sections exist
-				if (i > 0)
-				{
-					// Get previous section
-					var prevSec = sections[i - 1];
-					if (prevSec != null)
-					{
-						// Get last obstacle
-						var lastObs = prevSec.obstacles[prevSec.obstacles.length - 1];
-
-						// Prevent being close to each other as two sections meet
-						if (lastObs != null && lastObs.x + minDistanceBetween > 1280) 
-							obs.x = (1280 - lastObs.x) + minDistanceBetween - 30;
-						else // Enough far away
-						{
-							obs.x = lastObs.x + (minDistanceBetween + 75) + FlxG.random.int(-50, 50);
-						}
-					}
-				}
-				else // First section ever
-				{
-					var lastObs = section.obstacles[section.obstacles.length - 1];
-					if (lastObs != null)
-						obs.x = lastObs.x + (minDistanceBetween + 75) + FlxG.random.int(-50, 50);
-					else // First obstacle ever
-						obs.x = FlxG.random.int(0, minDistanceBetween);
-				}
-
-				obs.y = section.terrain.y - obs.height;
-				*/
 
 				obs.relativeX = obs.x = j * (minDistanceBetween + 85) + FlxG.random.int(-50, 50);
 				if (obs.x > 1280)
@@ -241,6 +220,30 @@ class PlayState extends FlxState
 	
 							continue; // Don't add new obs
 						}
+					}
+				}
+
+				var lastObst = section.obstacles[section.obstacles.length - 1];
+				if (lastObst != null)
+				{
+					if (lastObst.relativeX >= (1280 - lastObst.width))
+					{
+						//lastObst.kill();
+						//prevSection.obstacles.remove(lastObst);
+						//prevSection.remove(lastObst, true);
+						obs.kill();
+						fiends.push(obs);
+						bad = true;
+						//lastObst.destroy();
+					}
+
+					if (FlxMath.distanceBetween(lastObst, obs) < minDistanceBetween)
+					{
+						obs.kill();
+						fiends.push(obs);
+						bad = true;
+
+						continue; // Don't add new obs
 					}
 				}
 

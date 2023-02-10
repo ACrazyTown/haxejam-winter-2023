@@ -9,7 +9,8 @@ class Player extends FlxSprite
     public var speed:Int = 270;
     var gravity:Int = 1250;
 
-    public var inverted(default, set):Bool = false;
+    public var inverted:Bool = false;
+    public var invincible:Bool = false;
 
     public function new(x:Float, y:Float)
     {
@@ -37,15 +38,4 @@ class Player extends FlxSprite
 
     inline public function moveX():Void
         acceleration.x = inverted ? -speed : speed;
-
-    private function set_inverted(value:Bool):Bool
-    {
-        inverted = value;
-
-        maxVelocity.x = inverted ? -speed : speed;
-        if (acceleration.x > 0)
-            moveX(); // reset values;
-
-        return value;
-    }
 }
